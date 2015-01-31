@@ -10,14 +10,14 @@ cur = con.cursor()
 ### READ STOPS [bus stop names & locations]
 # stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station
 cur.execute("DROP TABLE IF EXISTS stops;")
-cur.execute("CREATE TABLE stops (stop_id integer primary key,stop_name text,stop_coordinates text);")
+cur.execute("CREATE TABLE stops (stop_id integer primary key,stop_name text,stop_lat real, stop_lon real);")
 
 with open ('data/stops.txt', 'rb') as f:
 	# csv.DictReader uses first line in file for column headings by default
     dr = csv.DictReader(f) # comma is default delimiter
-    to_db = [(i['stop_id'], i['stop_name'], i['stop_lat'] +','+ i['stop_lon']) for i in dr]
+    to_db = [(i['stop_id'], i['stop_name'], i['stop_lat'], i['stop_lon']) for i in dr]
 
-cur.executemany("INSERT INTO stops (stop_id,stop_name,stop_coordinates) VALUES (?, ?, ?);", to_db)
+cur.executemany("INSERT INTO stops (stop_id,stop_name,stop_lat, stop_lon) VALUES (?, ?, ?, ?);", to_db)
 
 ################
 ### READ ROUTES [bus line names]

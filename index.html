@@ -10,61 +10,96 @@
     <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACNh7GWWzrcUbmVLQys7vonsiocog7SRs&sensor=false">
     </script>
+    <script type="text/javascript" 
+      src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js">
+    </script>
     <script type="text/javascript">
       function initialize() {
         var mapOptions = {
           center: new google.maps.LatLng(52.500444,13.413277),
-          zoom: 13
+          zoom: 13,
+          minZoom: 13
         };
-        var map = new google.maps.Map(document.getElementById("map-canvas"),
-            mapOptions);
+        var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+        // var transitLayer = new google.maps.TransitLayer();
+        // transitLayer.setMap(map);
 
-var allData = {
-" 104 ": [ [ 52.5196930,13.2562180 , 52.5164090,13.2599100 , 52.5142990,13.2639740 , 52.5114780,13.2689020 , 52.5100880,13.2710710 , 52.5089080,13.2722150 , 52.5074230,13.2765910 , 52.5067340,13.2787800 , 52.5046940,13.2796050 , 52.4975580,13.2829310 , 52.4959210,13.2872280 , 52.4966980,13.2901510 , 52.4958880,13.2959880 , 52.4946510,13.3013850 , 52.4934530,13.3048980 , 52.4914980,13.3110240 , 52.4902010,13.3145190 , 52.4863470,13.3216180 , 52.4868450,13.3285230 , 52.4870470,13.3313550 , 52.4858190,13.3366180 , 52.4851480,13.3450770 , 52.4817940,13.3483750 , 52.4845100,13.3529780 , 52.4869420,13.3571600 , 52.4862630,13.3607750 , 52.4850480,13.3648160 , 52.4850810,13.3682020 , 52.4850520,13.3729710 , 52.4849360,13.3767810 , 52.4849770,13.3863510 , 52.4841180,13.3944790 , 52.4837450,13.4001200 , 52.4822060,13.4079030 , 52.4805820,13.4159470 , 52.4802590,13.4211620 , 52.4797450,13.4257820 , 52.4774730,13.4263710 , 52.4783450,13.4323160 , 52.4786320,13.4360500 , 52.4810680,13.4352460 , 52.4816750,13.4400790 , 52.4844330,13.4438060 , 52.4863520,13.4463560 , 52.4882690,13.4490840 , 52.4885470,13.4535540 , 52.4911910,13.4570720 , 52.4941910,13.4615300 , 52.4956950,13.4678230 , 52.4936740,13.4720700 , 52.4926830,13.4766160 , 52.4903390,13.4807490 , ], 
-], 
-}
+       
+        var routeInfoWindow = new google.maps.InfoWindow({ // this info window shows the route name when the mouse hovers over a route line
+          disableAutoPan: true
+        });
 
-;
-var routeColors = {" 104 ": "#0000FF"};
-var routeNames = [" 104 "];
-var routeMapLinks = {" 104 ":"link"};
+        function drawRoutes(allData, routeColors, routeNames, routeMapLinks)
+        {
+          for (var i = 0; i < routeNames.length; i++) // loop over each route
+          {  
+              var routeName = routeNames[i];
+              for (var j = 0; j < allData[routeName].length; j++) // loop over each path on the route
+              {
+                  var curPath = allData[routeName][j];
+                  var polylinePoints = [];
+                  for (var k = 0; k < curPath.length; k += 2) // loop over each point in the path
+                  {
+                      polylinePoints.push(new google.maps.LatLng(curPath[k], curPath[k + 1]));
+                  }
 
-var routeInfoWindow = new google.maps.InfoWindow({ // this info window shows the route name when the mouse hovers over a route line
-  disableAutoPan: true
-});
+                  var routePath = new google.maps.Polyline({
+                      path: polylinePoints,
+                      strokeColor: routeColors[routeName],
+                      strokeOpacity: 1.0,
+                      strokeWeight: 2
+                      });
 
-for (var i = 0; i < routeNames.length; i++) {  // loop over each route
-    var routeName = routeNames[i];
-    for (var j = 0; j < allData[routeName].length; j++) { // loop over each path on the route
-        var curPath = allData[routeName][j];
-        var polylinePoints = [];
-        for (var k = 0; k < curPath.length; k += 2) { // loop over each point in the path
-            polylinePoints.push(new google.maps.LatLng(curPath[k], curPath[k+1]));
+                  // (function(thisRouteName) { // making this into a closure so that "thisRouteName" keeps its value
+                  //   google.maps.event.addListener(routePath, 'mouseover', function(moevent) {
+                  //     routeInfoWindow.setPosition(moevent.latLng); // set the info window where the mouse is
+                  //     routeInfoWindow.setContent('<a href="http://www.sfmta.com/node/' + routeMapLinks[thisRouteName] + '">' + thisRouteName + '</a>');
+                  //     routeInfoWindow.open(map);
+                  //   });
+                  // })(routeName);
+
+                  routePath.setMap(map);
+              }
+          }
         }
-        var routePath = new google.maps.Polyline({
-            path: polylinePoints,
-            strokeColor: routeColors[routeName],
-            strokeOpacity: 1.0,
-            strokeWeight: 2
-            });
 
-        (function(thisRouteName) { // making this into a closure so that "thisRouteName" keeps its value
-          google.maps.event.addListener(routePath, 'mouseover', function(moevent) {
-            routeInfoWindow.setPosition(moevent.latLng); // set the info window where the mouse is
-            routeInfoWindow.setContent('<a href="http://www.sfmta.com/node/' + routeMapLinks[thisRouteName] + '">' + thisRouteName + '</a>');
-            routeInfoWindow.open(map);
-          });
-        })(routeName);
+        function drawStops(jsondata)
+        {
+            var icon = 'images/icon_H.png';
 
-        routePath.setMap(map);
-    }
-}
+            for(var i = 0; i < jsondata.stops.length && i < 10000; i++)
+            {
+              marker = new google.maps.Marker({
+                position: new google.maps.LatLng(jsondata.stops[i][2], jsondata.stops[i][3]),
+                map: map,
+                icon: icon
+              });
 
+              google.maps.event.addListener(marker, 'mouseover', (function(marker, i) {
+                return function() {
+                  routeInfoWindow.setContent(jsondata.stops[i][1]);
+                  routeInfoWindow.open(map, marker);
+                }
+              })(marker, i));
+            }
+        }
 
+        $.get('webdata/stops.txt?param=' + Math.random(), function (response) 
+        {
+          drawStops(jQuery.parseJSON(response));
+        });
 
+        $.get('webdata/routes.txt?param=' + Math.random(), function (response) 
+        {
+          var routeColors = {"104": "#0000FF", "166": "#FF00FF"};
+          var routeNames = ["104", "166"];
+          var routeMapLinks = {"104":"link", "166":"link"};
+
+          drawRoutes(jQuery.parseJSON(response), routeColors, routeNames, routeMapLinks);
+        });
       }
-      google.maps.event.addDomListener(window, 'load', initialize);
 
+      google.maps.event.addDomListener(window, 'load', initialize);
 
     </script>
   </head>

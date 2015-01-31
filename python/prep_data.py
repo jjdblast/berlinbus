@@ -8,9 +8,10 @@ cur = con.cursor()
 # to do so, we generate a hashtag that represents one complete trip
 cur.execute("DROP TABLE IF EXISTS temp;")
 cur.execute("CREATE TABLE temp (trip_id integer, route_id integer, hashtag integer);");
-data = cur.execute("INSERT INTO temp SELECT DISTINCT trips.trip_id, route_id, SUM(stop_id) "
-   "FROM trips, stop_times "
-   "WHERE trips.route_id=224 "
+data = cur.execute("INSERT INTO temp SELECT DISTINCT trips.trip_id, routes.route_id, SUM(stop_id) "
+   "FROM trips, stop_times, routes "
+   # "WHERE trips.route_id=224 "
+   "WHERE routes.route_id=trips.route_id "
    "AND trips.trip_id=stop_times.trip_id "
    "GROUP BY trips.trip_id")
 
@@ -25,7 +26,7 @@ cur.execute("DROP TABLE IF EXISTS temp;")
 
 # create a denormalized lookup table containing all data we need
 cur.execute("DROP TABLE IF EXISTS lookup;")
-cur.execute("CREATE TABLE lookup AS SELECT DISTINCT stop_times.trip_id, routes.route_id, route_short_name, stop_name, stop_coordinates, trip_frequency "
+cur.execute("CREATE TABLE lookup AS SELECT DISTINCT stop_times.trip_id, routes.route_id, route_short_name, stop_name, stop_lat, stop_lon, trip_frequency "
             "FROM stop_times, stops, trips_unique, routes "
             "WHERE stop_times.trip_id = trips_unique.trip_id "
             "AND stop_times.stop_id = stops.stop_id "
