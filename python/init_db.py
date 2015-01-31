@@ -1,5 +1,3 @@
-
-
 import csv
 import sqlite3
 
@@ -14,7 +12,7 @@ cur = con.cursor()
 cur.execute("DROP TABLE IF EXISTS stops;")
 cur.execute("CREATE TABLE stops (stop_id integer primary key,stop_name text,stop_coordinates text);")
 
-with open ('stops.txt', 'rb') as f:
+with open ('data/stops.txt', 'rb') as f:
 	# csv.DictReader uses first line in file for column headings by default
     dr = csv.DictReader(f) # comma is default delimiter
     to_db = [(i['stop_id'], i['stop_name'], i['stop_lat'] +','+ i['stop_lon']) for i in dr]
@@ -27,7 +25,7 @@ cur.executemany("INSERT INTO stops (stop_id,stop_name,stop_coordinates) VALUES (
 cur.execute("DROP TABLE IF EXISTS routes;")
 cur.execute("CREATE TABLE routes (route_id integer primary key,route_short_name text);")
 
-with open ('routes.txt', 'rb') as f:
+with open ('data/routes.txt', 'rb') as f:
 	# csv.DictReader uses first line in file for column headings by default
     dr = csv.DictReader(f) # comma is default delimiter
     to_db = [(i['route_id'], i['route_short_name']) for i in dr]
@@ -40,7 +38,7 @@ cur.executemany("INSERT INTO routes (route_id,route_short_name) VALUES (?, ?);",
 cur.execute("DROP TABLE IF EXISTS trips;")
 cur.execute("CREATE TABLE trips (trip_id integer primary key, route_id integer);")
 
-with open ('trips.txt', 'rb') as f:
+with open ('data/trips.txt', 'rb') as f:
 	# csv.DictReader uses first line in file for column headings by default
     dr = csv.DictReader(f) # comma is default delimiter
     to_db = [(i['trip_id'], i['route_id']) for i in dr]
@@ -53,7 +51,7 @@ cur.executemany("INSERT INTO trips (trip_id, route_id) VALUES (?, ?);", to_db)
 cur.execute("DROP TABLE IF EXISTS stop_times;")
 cur.execute("CREATE TABLE stop_times (trip_id integer,stop_id integer);")
 
-with open ('stop_times.txt', 'rb') as f:
+with open ('data/stop_times.txt', 'rb') as f:
 	# csv.DictReader uses first line in file for column headings by default
     dr = csv.DictReader(f) # comma is default delimiter
     to_db = [(i['trip_id'], i['stop_id']) for i in dr]
